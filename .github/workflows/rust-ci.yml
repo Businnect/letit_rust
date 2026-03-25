@@ -9,6 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      LETIT_API_TOKEN: ${{ secrets.LETIT_API_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
@@ -25,4 +27,5 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Run tests
-        run: cargo test --all-features
+        if: env.LETIT_API_TOKEN != ''
+        run: cargo test --all-features -- --ignored
