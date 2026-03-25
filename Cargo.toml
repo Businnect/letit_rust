@@ -1,5 +1,5 @@
 [package]
-name = "letit_rust"
+name = "letit"
 version = "0.0.0"
 edition = "2021"
 description = "A professional Rust client for the LetIt API, featuring high-performance support for Microposts and Job management."
@@ -18,4 +18,3 @@ thiserror = "2"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
-wiremock = "0.6"

@@ -1,33 +1,15 @@
-use letit_rust::{CreateJobWithCompanyRequest, FilePayload, JobLocation, LetItClient};
-use serde_json::json;
-use wiremock::matchers::{body_json, body_string_contains, header, method, path};
-use wiremock::{Mock, MockServer, ResponseTemplate};
+mod common;
+
+use letit::{CreateJobWithCompanyRequest, FilePayload, JobLocation};
 
 #[tokio::test]
+#[ignore = "hits the production LetIt API"]
 async fn create_and_delete_job() {
-    let server = MockServer::start().await;
-
-    Mock::given(method("POST"))
-        .and(path("/api/v1/client/job"))
-        .and(header("USER-API-TOKEN", "test-token"))
-        .and(body_string_contains("Acme Corp"))
-        .and(body_string_contains("REMOTE"))
-        .and(body_string_contains("logo.png"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "slug": "acme-corp-rust" })))
-        .mount(&server)
-        .await;
-
-    Mock::given(method("DELETE"))
-        .and(path("/api/v1/client/job"))
-        .and(header("USER-API-TOKEN", "test-token"))
-        .and(body_json(json!({ "slug": "acme-corp-rust" })))
-        .respond_with(ResponseTemplate::new(204))
-        .mount(&server)
-        .await;
-
-    let client = LetItClient::new(server.uri(), "test-token");
+    let client = common::live_client();
+    let company_name = common::unique_name("letit-rust-acme");
+    let (logo_filename, logo_bytes, logo_mime_type) = common::repository_logo();
     let mut request = CreateJobWithCompanyRequest::new(
-        "Acme Corp",
+        &company_name,
         "Remote-first company.",
         "https://acme.example",
         "Senior Rust Developer",
@@ -36,13 +18,13 @@ async fn create_and_delete_job() {
     );
     request.job_location = JobLocation::Remote;
     request.company_logo = Some(FilePayload {
-        filename: "logo.png".to_string(),
-        bytes: b"fake-logo".to_vec(),
-        mime_type: Some("image/png".to_string()),
+        filename: logo_filename,
+        bytes: logo_bytes,
+        mime_type: Some(logo_mime_type),
     });
 
     let response = client.job.create_with_company(request).await.unwrap();
-    assert_eq!(response.slug, "acme-corp-rust");
+    assert!(!response.slug.is_empty());
 
-    client.job.delete("acme-corp-rust").await.unwrap();
+    client.job.delete(&response.slug).await.unwrap();
 }

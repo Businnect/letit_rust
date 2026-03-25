@@ -17,7 +17,7 @@ For detailed information on the underlying REST API, endpoints, and authenticati
 ## Installation
 
 ```bash
-cargo add letit_rust
+cargo add letit
 ```
 
 ## Quick Start
@@ -27,7 +27,7 @@ cargo add letit_rust
 The client can be initialized with an explicit API key and base URL.
 
 ```rust
-use letit_rust::LetItClient;
+use letit::LetItClient;
 
 fn main() {
     let client = LetItClient::new("https://api.letit.com", "your-api-token");
@@ -39,7 +39,7 @@ fn main() {
 The SDK handles multipart form construction and file uploads automatically.
 
 ```rust
-use letit_rust::{CreateJobWithCompanyRequest, FilePayload, JobLocation, LetItClient};
+use letit::{CreateJobWithCompanyRequest, FilePayload, JobLocation, LetItClient};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -73,7 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 Easily create posts with optional titles and bodies.
 
 ```rust
-use letit_rust::{CreateMicropostRequest, LetItClient, PostType};
+use letit::{CreateMicropostRequest, LetItClient, PostType};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -94,11 +94,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 The SDK can utilize the following environment variables for testing or default configuration:
 
-- `LETIT_API_TOKEN`: Can be used by integration tests against the live API.
+- `LETIT_API_TOKEN`: Required for authenticated integration tests against the live API.
 
 ## Testing
 
-Run the test suite using the standard Rust toolchain:
+All integration tests target the production API at `https://api.letit.com`.
+
+Because some tests create and then delete real resources, they are marked as ignored and require a valid `LETIT_API_TOKEN`.
+
+Run the default compile-and-smoke pass:
 
 ```powershell
 # In PowerShell
@@ -109,3 +113,15 @@ cargo test
 # In Bash
 cargo test
 ```
+
+Run the live API integration suite explicitly:
+
+```powershell
+cargo test -- --ignored
+```
+
+This executes:
+
+- an unauthenticated production check for invalid token handling
+- an authenticated micropost create/delete flow
+- an authenticated job create/delete flow
