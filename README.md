@@ -119,9 +119,3 @@ Run the live API integration suite explicitly:
 ```powershell
 cargo test -- --ignored
 ```
-
-This executes:
-
-- an unauthenticated production check for invalid token handling
-- an authenticated micropost create/delete flow
-- an authenticated job create/delete flow
