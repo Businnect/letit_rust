@@ -186,3 +186,14 @@ Run the live API integration suite explicitly:
 ```powershell
 cargo test -- --ignored
 ```
+
+## How to publish
+
+You can find your crates.io API token here.
+
+https://crates.io/settings/tokens
+
+```bash
+cargo login
+cargo publsih
+```
