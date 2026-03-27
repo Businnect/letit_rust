@@ -6,7 +6,7 @@ use serde_json::json;
 
 use crate::client::ClientInner;
 use crate::error::Result;
-use crate::schemas::{CreatedWithPublicIdAndLink, FilePayload, PostType};
+use crate::schemas::{CreatedWithPublicIdAndLink, FilePayload, MicropostVoteEdited, PostType};
 
 #[derive(Clone)]
 pub struct MicropostResource {
@@ -61,6 +61,21 @@ impl MicropostResource {
             .await?;
 
         Ok(())
+    }
+
+    pub async fn vote(&self, public_id: impl AsRef<str>) -> Result<MicropostVoteEdited> {
+        let payload = json!({ "public_id": public_id.as_ref() });
+
+        let body = self
+            .inner
+            .send_text(
+                self.inner
+                    .request(Method::PATCH, "/api/v1/client/micropost/vote")
+                    .json(&payload),
+            )
+            .await?;
+
+        Ok(serde_json::from_str(&body)?)
     }
 }
 

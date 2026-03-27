@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PostType {
     Text,
@@ -11,4 +13,9 @@ impl PostType {
             Self::Media => "MEDIA",
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct MicropostVoteEdited {
+    pub user_voted: bool,
 }

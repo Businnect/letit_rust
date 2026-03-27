@@ -16,5 +16,8 @@ async fn create_and_delete_micropost() {
     assert!(!response.public_id.is_empty());
     assert!(!response.link.trim().is_empty());
 
+    let voted = client.micropost.vote(&response.public_id).await.unwrap();
+    assert!(voted.user_voted);
+
     client.micropost.delete(&response.public_id).await.unwrap();
 }

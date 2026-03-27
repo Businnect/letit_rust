@@ -4,11 +4,12 @@ use reqwest::{Client, Method, RequestBuilder};
 use serde_json::Value;
 
 use crate::error::{LetItError, Result};
-use crate::resources::{JobResource, MicropostResource};
+use crate::resources::{BlogResource, JobResource, MicropostResource};
 
 #[derive(Clone)]
 pub struct LetItClient {
     inner: Arc<ClientInner>,
+    pub blog: BlogResource,
     pub job: JobResource,
     pub micropost: MicropostResource,
 }
@@ -22,6 +23,7 @@ impl LetItClient {
         });
 
         Self {
+            blog: BlogResource::new(inner.clone()),
             job: JobResource::new(inner.clone()),
             micropost: MicropostResource::new(inner.clone()),
             inner,
@@ -40,6 +42,7 @@ impl LetItClient {
         });
 
         Self {
+            blog: BlogResource::new(inner.clone()),
             job: JobResource::new(inner.clone()),
             micropost: MicropostResource::new(inner.clone()),
             inner,

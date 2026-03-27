@@ -12,6 +12,9 @@ For detailed information on the underlying REST API, endpoints, and authenticati
 
 - **Job Management**: Full support for creating job postings with company logos, descriptions, and metadata.
 - **Micropost System**: Create text posts or file-based updates with attachment support.
+- **Micropost Voting**: Toggle a vote on microposts using a single endpoint call.
+- **Admin Blog Listing**: Retrieve public admin blog entries with filter and pagination query support.
+- **Admin Blog Detail**: Fetch one public admin article by slug (nullable response).
 - **Async HTTP Support**: Built on `reqwest` with centralized authentication and API error handling.
 
 ## Installation
@@ -85,6 +88,70 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let response = client.micropost.create(request).await?;
     println!("Post created with ID: {}", response.public_id);
+
+    Ok(())
+}
+```
+
+### Vote a Micropost
+
+Toggle the authenticated user's vote for a micropost.
+
+```rust
+use letit::LetItClient;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = LetItClient::new("https://api.letit.com", "your-api-token");
+
+    let result = client.micropost.vote("your-public-id").await?;
+    println!("User voted: {}", result.user_voted);
+
+    Ok(())
+}
+```
+
+### List Admin Blogs
+
+Retrieve admin blog entries with optional filters and pagination.
+
+```rust
+use letit::{LetItClient, ListAdminBlogsParams};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = LetItClient::new("https://api.letit.com", "your-api-token");
+
+    let params = ListAdminBlogsParams {
+        title: Some("release".to_string()),
+        category: None,
+        skip: Some(0),
+        limit: Some(10),
+    };
+
+    let response = client.blog.list_admin(params).await?;
+    println!("Blogs: {}", response.list.len());
+
+    Ok(())
+}
+```
+
+### Get Admin Blog by Slug
+
+Fetch one admin blog article by slug. The API can return `null` when not found.
+
+```rust
+use letit::LetItClient;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = LetItClient::new("https://api.letit.com", "your-api-token");
+
+    let blog = client.blog.get_admin("some-slug").await?;
+    match blog {
+        Some(article) => println!("Blog found: {}", article),
+        None => println!("Blog not found"),
+    }
 
     Ok(())
 }
